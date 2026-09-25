@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Meine Handschrift-Arbeitsblätter</title>
+
+<script async
+  src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6606842033313209"
+  crossorigin="anonymous">
+</script>
+
+<style>
+:root {
+  --green: #6fbf8f;
+  --dark-green: #438b62;
+  --light-green: #eaf7ee;
+  --very-light-green: #f7fcf8;
+  --text: #26352b;
+  --border: #9bcaae;
+  --grey: #718078;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: var(--text);
+  background: var(--light-green);
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 17px 26px;
+  color: white;
+  background: var(--green);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 23px;
+}
+
+.tk-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 42px;
+  color: white;
+  border: 3px solid white;
+  border-radius: 8px;
+  font-family: Georgia, serif;
+  font-size: 25px;
+  font-weight: bold;
+  letter-spacing: -6px;
+  transform: skew(-8deg);
+  user-select: none;
+}
+
+.tk-logo span {
+  display: inline-block;
+  transform: skew(8deg);
+}
+
+main {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 26px;
+  max-width: 1400px;
+  margin: auto;
+  padding: 26px;
+}
+
+.panel {
+  padding: 22px;
+  background: white;
+  border: 1px solid #d4eadb;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(55, 110, 75, .10);
+}
+
+h2 {
+  margin-top: 0;
+  color: var(--dark-green);
+  font-size: 19px;
+}
+
+.hint {
+  color: var(--grey);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.character-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  max-height: 220px;
+  margin: 18px 0;
+  overflow-y: auto;
+}
+
+.character-list button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: var(--text);
+  background: var(--very-light-green);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.character-list button:hover {
+  background: #d9f0e1;
+}
+
+.character-list button.active {
+  color: white;
+  background: var(--dark-green);
+}
+
+.character-list button.saved {
+  border: 2px solid var(--green);
+  font-weight: bold;
+}
+
+.selected-character {
+  margin: 10px;
+  color: var(--dark-green);
+  font-size: 42px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.drawing-frame {
+  width: 50%;
+  min-width: 155px;
+  max-width: 190px;
+  margin: auto;
+  padding: 7px;
+  background: white;
+  border: 3px solid var(--green);
+  border-radius: 10px;
+  box-shadow: 0 0 0 3px #d5efdc;
+}
+
+.drawing-title {
+  margin-bottom: 6px;
+  color: var(--dark-green);
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+}
+
+#drawingCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 1;
+  background:
+    linear-gradient(
+      to bottom,
+      transparent 81.5%,
+      #b8c8bd 81.7%,
+      transparent 81.9%
+    ),
+    white;
+  border: 1px solid var(--dark-green);
+  border-radius: 5px;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.variant-controls {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 11px;
+}
+
+.variant-controls button {
+  padding: 7px 9px;
+  color: var(--text);
+  background: #e0f0e5;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.variant-controls button.active {
+  color: white;
+  background: var(--dark-green);
+}
+
+.variant-controls button.available {
+  border-color: var(--green);
+  font-weight: bold;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 16px;
+}
+
+button {
+  font: inherit;
+}
+
+.actions button {
+  padding: 10px 14px;
+  color: white;
+  background: var(--dark-green);
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.actions button:hover {
+  background: #34764f;
+}
+
+.actions button.secondary {
+  color: var(--text);
+  background: #e0f0e5;
+}
+
+.actions button:disabled {
+  opacity: .65;
+  cursor: wait;
+}
+
+textarea {
+  width: 100%;
+  height: 180px;
+  padding: 13px;
+  color: var(--text);
+  background: #fcfffd;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.worksheet-area {
+  margin-top: 20px;
+  text-align: center;
+}
+
+#worksheetCanvas {
+  display: block;
+  width: 100%;
+  max-width: 794px;
+  height: auto;
+  margin: auto;
+  background: white;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .20);
+}
+
+@media (max-width: 850px) {
+  main {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .tk-logo {
+    width: 58px;
+    height: 36px;
+    font-size: 21px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Meine Handschrift-Arbeitsblätter</h1>
+
+  <div class="tk-logo" aria-label="TK Logo">
+    <span>T</span><span>K</span>
+  </div>
+</header>
+
+<main>
+
+<section class="panel">
+  <h2>1. Buchstaben zeichnen</h2>
+
+  <p class="hint">
+    Jeder Buchstabe besitzt eine eigene Vorlage.
+    Eine zweite Vorlage ist optional und sorgt für
+    natürlichere Wiederholungen.
+  </p>
+
+  <div id="characterList" class="character-list"></div>
+
+  <div id="selectedCharacter" class="selected-character">
+    A
+  </div>
+
+  <div class="drawing-frame">
+    <div id="drawingTitle" class="drawing-title">
+      Erste Vorlage
+    </div>
+
+    <canvas
+      id="drawingCanvas"
+      width="600"
+      height="300">
+    </canvas>
+  </div>
+
+  <div class="variant-controls">
+    <button id="firstVariantButton" class="active">
+      Erste Vorlage
+    </button>
+
+    <button id="secondVariantButton">
+      Zweite Vorlage
+    </button>
+  </div>
+
+  <div class="actions">
+    <button id="saveButton">
+      Vorlage speichern
+    </button>
+
+    <button id="clearButton" class="secondary">
+      Löschen
+    </button>
+  </div>
+
+  <p id="status" class="hint"></p>
+</section>
+
+<section class="panel">
+  <h2>2. Arbeitsblatt erstellen</h2>
+
+  <textarea id="textInput">heute fährt max mit dem zug durch köln und kauft frisches brot beim bäcker. später schreibt er einen kurzen text über quizze und jazzmusik.</textarea>
+
+  <div class="actions">
+    <button id="generateButton">
+      Arbeitsblatt erstellen
+    </button>
+
+    <button id="downloadButton" class="secondary">
+      Als PNG herunterladen
+    </button>
+  </div>
+
+  <p id="downloadInfo" class="hint"></p>
+
+  <div class="worksheet-area">
+    <canvas
+      id="worksheetCanvas"
+      width="794"
+      height="1123">
+    </canvas>
+  </div>
+</section>
+
+</main>
+
+<script>
+const characters =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+  "abcdefghijklmnopqrstuvwxyz" +
+  "ÄÖÜäöüß" +
+  "ÁÉÍÓÚáéíóú" +
+  "ÀÈÌÒÙàèìòù" +
+  "ÂÊÎÔÛâêîôû" +
+  "ÄËÏÖÜäëïöü" +
+  "Ññ" +
+  "0123456789" +
+  ".,!?;:'\"()-_+/= ";
+
+const SOURCE_BASELINE = 245;
+const SOURCE_FONT_SIZE = 230;
+
+const LETTER_GAP = 2.2;
+const SPACE_WIDTH = 20;
+
+const NARROW_LEFT_GAP = 0.9;
+const NARROW_RIGHT_GAP = 0.5;
+const NARROW_MIN_ADVANCE = 6;
+
+const drawingCanvas =
+  document.getElementById("drawingCanvas");
+
+const drawingContext =
+  drawingCanvas.getContext("2d");
+
+const worksheetCanvas =
+  document.getElementById("worksheetCanvas");
+
+const worksheetContext =
+  worksheetCanvas.getContext("2d");
+
+const characterList =
+  document.getElementById("characterList");
+
+const selectedCharacterElement =
+  document.getElementById("selectedCharacter");
+
+const drawingTitle =
+  document.getElementById("drawingTitle");
+
+const statusText =
+  document.getElementById("status");
+
+const downloadInfo =
+  document.getElementById("downloadInfo");
+
+const firstVariantButton =
+  document.getElementById("firstVariantButton");
+
+const secondVariantButton =
+  document.getElementById("secondVariantButton");
+
+let currentCharacter = "A";
+let currentVariant = 0;
+let strokes = [];
+let currentStroke = null;
+
+let handwriting = loadHandwriting();
+
+function loadHandwriting() {
+  const saved = JSON.parse(
+    localStorage.getItem("handwritingData") || "{}"
+  );
+
+  const converted = {};
+
+  Object.keys(saved).forEach(character => {
+    const value = saved[character];
+
+    /*
+      Alte Struktur:
+      handwriting["A"] = [stroke, stroke, ...]
+    */
+    if (
+      Array.isArray(value) &&
+      (
+        value.length === 0 ||
+        Array.isArray(value[0]) &&
+        (
+          value[0].length === 0 ||
+          typeof value[0][0]?.x === "number"
+        )
+      )
+    ) {
+      converted[character] = [value];
+    }
+
+    /*
+      Neue Struktur:
+      handwriting["A"] = [
+        [stroke, stroke, ...],
+        [stroke, stroke, ...]
+      ]
+    */
+    else if (Array.isArray(value)) {
+      converted[character] = value;
+    }
+  });
+
+  return converted;
+}
+
+function saveHandwriting() {
+  localStorage.setItem(
+    "handwritingData",
+    JSON.stringify(handwriting)
+  );
+}
+
+function cloneStrokes(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function getVariants(character) {
+  return handwriting[character] || [];
+}
+
+function createCharacterButtons() {
+  characters.split("").forEach(character => {
+    const button =
+      document.createElement("button");
+
+    button.textContent =
+      character === " "
+        ? "␠"
+        : character;
+
+    button.title =
+      character === " "
+        ? "Leerzeichen"
+        : character;
+
+    button.addEventListener("click", () => {
+      selectCharacter(character);
+    });
+
+    characterList.appendChild(button);
+  });
+
+  updateCharacterButtons();
+}
+
+function selectCharacter(character) {
+  currentCharacter = character;
+  currentVariant = 0;
+
+  selectedCharacterElement.textContent =
+    character === " "
+      ? "Leerzeichen"
+      : character;
+
+  loadCurrentVariant();
+  updateCharacterButtons();
+  updateVariantButtons();
+  statusText.textContent = "";
+}
+
+function loadCurrentVariant() {
+  const variants =
+    getVariants(currentCharacter);
+
+  strokes =
+    variants[currentVariant]
+      ? cloneStrokes(variants[currentVariant])
+      : [];
+
+  redrawDrawingCanvas();
+}
+
+function updateCharacterButtons() {
+  [...characterList.children].forEach(button => {
+    const character =
+      button.textContent === "␠"
+        ? " "
+        : button.textContent;
+
+    button.classList.toggle(
+      "active",
+      character === currentCharacter
+    );
+
+    button.classList.toggle(
+      "saved",
+      getVariants(character).length > 0
+    );
+  });
+}
+
+function updateVariantButtons() {
+  const variants =
+    getVariants(currentCharacter);
+
+  firstVariantButton.classList.toggle(
+    "active",
+    currentVariant === 0
+  );
+
+  secondVariantButton.classList.toggle(
+    "active",
+    currentVariant === 1
+  );
+
+  firstVariantButton.classList.toggle(
+    "available",
+    Boolean(variants[0])
+  );
+
+  secondVariantButton.classList.toggle(
+    "available",
+    Boolean(variants[1])
+  );
+
+  drawingTitle.textContent =
+    currentVariant === 0
+      ? "Erste Vorlage"
+      : "Zweite Vorlage";
+}
+
+function getCanvasPosition(event) {
+  const rectangle =
+    drawingCanvas.getBoundingClientRect();
+
+  return {
+    x:
+      ((event.clientX - rectangle.left) /
+        rectangle.width) *
+      drawingCanvas.width,
+
+    y:
+      ((event.clientY - rectangle.top) /
+        rectangle.height) *
+      drawingCanvas.height
+  };
+}
+
+drawingCanvas.addEventListener(
+  "pointerdown",
+  event => {
+    drawingCanvas.setPointerCapture(
+      event.pointerId
+    );
+
+    currentStroke = [
+      getCanvasPosition(event)
+    ];
+
+    strokes.push(currentStroke);
+    redrawDrawingCanvas();
+  }
+);
+
+drawingCanvas.addEventListener(
+  "pointermove",
+  event => {
+    if (!currentStroke) return;
+
+    currentStroke.push(
+      getCanvasPosition(event)
+    );
+
+    redrawDrawingCanvas();
+  }
+);
+
+drawingCanvas.addEventListener(
+  "pointerup",
+  () => {
+    currentStroke = null;
+  }
+);
+
+drawingCanvas.addEventListener(
+  "pointercancel",
+  () => {
+    currentStroke = null;
+  }
+);
+
+function drawGuideCharacter() {
+  if (currentCharacter === " ") {
+    return;
+  }
+
+  drawingContext.save();
+
+  drawingContext.fillStyle =
+    "rgba(105, 120, 110, .28)";
+
+  drawingContext.font =
+    `${SOURCE_FONT_SIZE}px Arial`;
+
+  drawingContext.textAlign = "center";
+  drawingContext.textBaseline = "alphabetic";
+
+  drawingContext.fillText(
+    currentCharacter,
+    drawingCanvas.width / 2,
+    SOURCE_BASELINE
+  );
+
+  drawingContext.restore();
+}
+
+function redrawDrawingCanvas() {
+  drawingContext.clearRect(
+    0,
+    0,
+    drawingCanvas.width,
+    drawingCanvas.height
+  );
+
+  drawGuideCharacter();
+
+  drawingContext.strokeStyle = "#17251b";
+  drawingContext.lineWidth = 6;
+  drawingContext.lineCap = "round";
+  drawingContext.lineJoin = "round";
+
+  for (const stroke of strokes) {
+    if (stroke.length < 2) {
+      continue;
+    }
+
+    drawingContext.beginPath();
+
+    drawingContext.moveTo(
+      stroke[0].x,
+      stroke[0].y
+    );
+
+    for (let i = 1; i < stroke.length; i++) {
+      drawingContext.lineTo(
+        stroke[i].x,
+        stroke[i].y
+      );
+    }
+
+    drawingContext.stroke();
+  }
+}
+
+firstVariantButton.addEventListener(
+  "click",
+  () => {
+    currentVariant = 0;
+    loadCurrentVariant();
+    updateVariantButtons();
+  }
+);
+
+secondVariantButton.addEventListener(
+  "click",
+  () => {
+    currentVariant = 1;
+    loadCurrentVariant();
+    updateVariantButtons();
+  }
+);
+
+document
+  .getElementById("saveButton")
+  .addEventListener("click", () => {
+    if (!strokes.length) {
+      statusText.textContent =
+        "Bitte zeichne zuerst den Buchstaben.";
+
+      return;
+    }
+
+    if (!handwriting[currentCharacter]) {
+      handwriting[currentCharacter] = [];
+    }
+
+    handwriting[currentCharacter][currentVariant] =
+      cloneStrokes(strokes);
+
+    saveHandwriting();
+    updateCharacterButtons();
+    updateVariantButtons();
+
+    statusText.textContent =
+      currentVariant === 0
+        ? "Erste Vorlage gespeichert."
+        : "Zweite Vorlage gespeichert.";
+
+    generateWorksheet();
+  });
+
+document
+  .getElementById("clearButton")
+  .addEventListener("click", () => {
+    strokes = [];
+    redrawDrawingCanvas();
+    statusText.textContent = "";
+  });
+
+function getGlyphBounds(glyph) {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  glyph.forEach(stroke => {
+    stroke.forEach(point => {
+      minX = Math.min(minX, point.x);
+      minY = Math.min(minY, point.y);
+      maxX = Math.max(maxX, point.x);
+      maxY = Math.max(maxY, point.y);
+    });
+  });
+
+  if (!isFinite(minX)) {
+    return null;
+  }
+
+  return {
+    minX,
+    minY,
+    maxX,
+    maxY,
+    width: Math.max(1, maxX - minX),
+    height: Math.max(1, maxY - minY)
+  };
+}
+
+function isSmallNarrowCharacter(character) {
+  const base =
+    character
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+  return (
+    base === "i" ||
+    base === "j" ||
+    base === "l"
+  );
+}
+
+function chooseGlyph(character) {
+  const variants =
+    getVariants(character);
+
+  if (!variants.length) {
+    return null;
+  }
+
+  if (variants.length >= 2) {
+    return Math.random() < 0.5
+      ? variants[0]
+      : variants[1];
+  }
+
+  return variants[0];
+}
+
+function getGlyphWidth(
+  glyph,
+  targetHeight,
+  maximumWidth
+) {
+  if (!glyph) {
+    return 0;
+  }
+
+  const bounds =
+    getGlyphBounds(glyph);
+
+  if (!bounds) {
+    return 0;
+  }
+
+  const scaleByHeight =
+    targetHeight / SOURCE_FONT_SIZE;
+
+  const scaleByWidth =
+    maximumWidth / bounds.width;
+
+  const scale = Math.min(
+    scaleByHeight,
+    scaleByWidth
+  );
+
+  return bounds.width * scale;
+}
+
+function getCharacterWidth(
+  character,
+  targetHeight,
+  maximumWidth
+) {
+  const glyph =
+    chooseGlyph(character);
+
+  let width =
+    getGlyphWidth(
+      glyph,
+      targetHeight,
+      maximumWidth
+    );
+
+  if (!width) {
+    worksheetContext.save();
+
+    worksheetContext.font =
+      `${targetHeight}px Arial`;
+
+    width =
+      worksheetContext.measureText(
+        character
+      ).width;
+
+    worksheetContext.restore();
+  }
+
+  if (
+    isSmallNarrowCharacter(character)
+  ) {
+    width = Math.max(
+      width,
+      NARROW_MIN_ADVANCE
+    );
+  }
+
+  return width;
+}
+
+function drawGlyph(
+  context,
+  glyph,
+  x,
+  baseline,
+  maximumWidth,
+  targetHeight
+) {
+  if (!glyph) {
+    return;
+  }
+
+  const bounds =
+    getGlyphBounds(glyph);
+
+  if (!bounds) {
+    return;
+  }
+
+  const scaleByHeight =
+    targetHeight / SOURCE_FONT_SIZE;
+
+  const scaleByWidth =
+    maximumWidth / bounds.width;
+
+  const scale = Math.min(
+    scaleByHeight,
+    scaleByWidth
+  );
+
+  const offsetY =
+    baseline -
+    (SOURCE_BASELINE - bounds.minY) *
+    scale;
+
+  context.save();
+
+  context.strokeStyle = "#17251b";
+  context.lineWidth =
+    Math.max(1.4, 5 * scale);
+
+  context.lineCap = "round";
+  context.lineJoin = "round";
+
+  glyph.forEach(stroke => {
+    if (stroke.length < 2) {
+      return;
+    }
+
+    context.beginPath();
+
+    context.moveTo(
+      x +
+        (stroke[0].x - bounds.minX) *
+        scale,
+
+      offsetY +
+        (stroke[0].y - bounds.minY) *
+        scale
+    );
+
+    for (let i = 1; i < stroke.length; i++) {
+      context.lineTo(
+        x +
+          (stroke[i].x - bounds.minX) *
+          scale,
+
+        offsetY +
+          (stroke[i].y - bounds.minY) *
+          scale
+      );
+    }
+
+    context.stroke();
+  });
+
+  context.restore();
+}
+
+function drawHandwrittenCharacter(
+  context,
+  character,
+  x,
+  baseline,
+  maximumWidth,
+  targetHeight
+) {
+  const glyph =
+    chooseGlyph(character);
+
+  if (!glyph) {
+    context.save();
+
+    context.fillStyle = "#17251b";
+    context.font =
+      `${targetHeight}px Arial`;
+
+    context.textBaseline = "alphabetic";
+
+    context.fillText(
+      character,
+      x,
+      baseline
+    );
+
+    context.restore();
+    return;
+  }
+
+  drawGlyph(
+    context,
+    glyph,
+    x,
+    baseline,
+    maximumWidth,
+    targetHeight
+  );
+}
+
+function drawPageLines() {
+  worksheetContext.save();
+
+  worksheetContext.strokeStyle =
+    "#d5e3d9";
+
+  worksheetContext.lineWidth = .7;
+
+  const firstBaseline = 92;
+  const lineSpacing = 38;
+
+  for (
+    let baseline = firstBaseline;
+    baseline < worksheetCanvas.height - 45;
+    baseline += lineSpacing
+  ) {
+    worksheetContext.beginPath();
+
+    worksheetContext.moveTo(
+      48,
+      baseline
+    );
+
+    worksheetContext.lineTo(
+      worksheetCanvas.width - 48,
+      baseline
+    );
+
+    worksheetContext.stroke();
+  }
+
+  worksheetContext.restore();
+}
+
+function getCharacterData(
+  character,
+  targetHeight,
+  maximumWidth
+) {
+  const narrow =
+    isSmallNarrowCharacter(character);
+
+  return {
+    width: getCharacterWidth(
+      character,
+      targetHeight,
+      maximumWidth
+    ),
+
+    leftGap: narrow
+      ? NARROW_LEFT_GAP
+      : 0,
+
+    rightGap: narrow
+      ? NARROW_RIGHT_GAP
+      : LETTER_GAP
+  };
+}
+
+function getWordWidth(
+  word,
+  targetHeight,
+  maximumWidth
+) {
+  let width = 0;
+
+  for (const character of word) {
+    const data =
+      getCharacterData(
+        character,
+        targetHeight,
+        maximumWidth
+      );
+
+    width +=
+      data.leftGap +
+      data.width +
+      data.rightGap;
+  }
+
+  return width;
+}
+
+function drawOneCharacter(
+  character,
+  x,
+  baseline,
+  maximumWidth,
+  targetHeight
+) {
+  const data =
+    getCharacterData(
+      character,
+      targetHeight,
+      maximumWidth
+    );
+
+  x += data.leftGap;
+
+  drawHandwrittenCharacter(
+    worksheetContext,
+    character,
+    x,
+    baseline,
+    maximumWidth,
+    targetHeight
+  );
+
+  return {
+    nextX:
+      x +
+      data.width +
+      data.rightGap
+  };
+}
+
+function drawHyphen(
+  x,
+  baseline,
+  maximumWidth,
+  targetHeight
+) {
+  const data =
+    getCharacterData(
+      "-",
+      targetHeight,
+      maximumWidth
+    );
+
+  drawHandwrittenCharacter(
+    worksheetContext,
+    "-",
+    x,
+    baseline,
+    maximumWidth,
+    targetHeight
+  );
+
+  return data.width + data.rightGap;
+}
+
+function drawLongWord(
+  word,
+  x,
+  baseline,
+  margin,
+  maximumWidth,
+  targetHeight,
+  lineHeight
+) {
+  let index = 0;
+
+  while (index < word.length) {
+    let currentWidth = 0;
+    let lastFittingIndex = index;
+
+    for (
+      let i = index;
+      i < word.length;
+      i++
+    ) {
+      const data =
+        getCharacterData(
+          word[i],
+          targetHeight,
+          maximumWidth
+        );
+
+      const hyphenWidth =
+        getCharacterWidth(
+          "-",
+          targetHeight,
+          maximumWidth
+        ) + LETTER_GAP;
+
+      const isLastCharacter =
+        i === word.length - 1;
+
+      const testWidth =
+        currentWidth +
+        data.leftGap +
+        data.width +
+        data.rightGap;
+
+      if (
+        !isLastCharacter &&
+        x + testWidth + hyphenWidth >
+        worksheetCanvas.width - margin
+      ) {
+        break;
+      }
+
+      if (
+        isLastCharacter &&
+        x + testWidth >
+        worksheetCanvas.width - margin
+      ) {
+        break;
+      }
+
+      currentWidth = testWidth;
+      lastFittingIndex = i + 1;
+    }
+
+    if (lastFittingIndex === index) {
+      lastFittingIndex = index + 1;
+    }
+
+    const part =
+      word.slice(index, lastFittingIndex);
+
+    for (const character of part) {
+      const result =
+        drawOneCharacter(
+          character,
+          x,
+          baseline,
+          maximumWidth,
+          targetHeight
+        );
+
+      x = result.nextX;
+    }
+
+    index = lastFittingIndex;
+
+    if (index < word.length) {
+      x += drawHyphen(
+        x,
+        baseline,
+        maximumWidth,
+        targetHeight
+      );
+
+      x = margin;
+      baseline += lineHeight;
+    }
+  }
+
+  return {
+    x,
+    baseline
+  };
+}
+
+function generateWorksheet() {
+  const text =
+    document.getElementById("textInput").value;
+
+  worksheetContext.fillStyle = "white";
+
+  worksheetContext.fillRect(
+    0,
+    0,
+    worksheetCanvas.width,
+    worksheetCanvas.height
+  );
+
+  drawPageLines();
+
+  const margin = 48;
+  const maximumWidth = 27;
+  const targetHeight = 31;
+  const lineHeight = 38;
+
+  let x = margin;
+  let baseline = 92;
+
+  const lines =
+    text.split("\n");
+
+  for (const line of lines) {
+    if (line.trim() === "") {
+      baseline += lineHeight;
+      x = margin;
+      continue;
+    }
+
+    const parts =
+      line.match(/\S+|\s+/g) || [];
+
+    for (const part of parts) {
+      if (/^\s+$/.test(part)) {
+        x += SPACE_WIDTH;
+        continue;
+      }
+
+      const wordWidth =
+        getWordWidth(
+          part,
+          targetHeight,
+          maximumWidth
+        );
+
+      if (
+        x > margin &&
+        x + wordWidth >
+        worksheetCanvas.width - margin
+      ) {
+        x = margin;
+        baseline += lineHeight;
+      }
+
+      if (
+        wordWidth >
+        worksheetCanvas.width -
+        margin * 2
+      ) {
+        const result =
+          drawLongWord(
+            part,
+            x,
+            baseline,
+            margin,
+            maximumWidth,
+            targetHeight,
+            lineHeight
+          );
+
+        x = result.x;
+        baseline = result.baseline;
+      } else {
+        for (const character of part) {
+          const result =
+            drawOneCharacter(
+              character,
+              x,
+              baseline,
+              maximumWidth,
+              targetHeight
+            );
+
+          x = result.nextX;
+        }
+      }
+
+      if (
+        baseline >
+        worksheetCanvas.height - margin
+      ) {
+        return;
+      }
+    }
+
+    x = margin;
+    baseline += lineHeight;
+
+    if (
+      baseline >
+      worksheetCanvas.height - margin
+    ) {
+      break;
+    }
+  }
+}
+
+/*
+  Erkennt iPads und iPhones.
+  Neuere iPads können sich als Macintosh ausgeben.
+*/
+function isAppleMobileDevice() {
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (
+      navigator.platform === "MacIntel" &&
+      navigator.maxTouchPoints > 1
+    )
+  );
+}
+
+/*
+  iPad-kompatibler PNG-Download.
+
+  Auf Windows/Mac wird direkt heruntergeladen.
+
+  Auf iPad/iPhone wird das PNG in einem neuen Tab geöffnet.
+  Das neue Fenster wird synchron beim Klick geöffnet,
+  damit Safari es nicht als Popup blockiert.
+*/
+function downloadWorksheetAsPNG() {
+  const isAppleMobile =
+    isAppleMobileDevice();
+
+  let appleWindow = null;
+
+  /*
+    Das Fenster muss direkt während des Benutzerklicks
+    geöffnet werden, bevor toBlob asynchron antwortet.
+  */
+  if (isAppleMobile) {
+    appleWindow = window.open(
+      "",
+      "_blank"
+    );
+
+    if (appleWindow) {
+      appleWindow.document.title =
+        "Arbeitsblatt PNG";
+
+      appleWindow.document.body.innerHTML = `
+        <p style="
+          font-family: Arial, sans-serif;
+          padding: 20px;
+          text-align: center;
+        ">
+          Das Arbeitsblatt wird vorbereitet ...
+        </p>
+      `;
+    }
+  }
+
+  worksheetCanvas.toBlob(
+    blob => {
+      if (!blob) {
+        /*
+          Fallback, falls Safari toBlob nicht unterstützt.
+        */
+        const dataUrl =
+          worksheetCanvas.toDataURL("image/png");
+
+        if (
+          isAppleMobile &&
+          appleWindow &&
+          !appleWindow.closed
+        ) {
+          appleWindow.location.href =
+            dataUrl;
+
+          downloadInfo.textContent =
+            "Halte das Bild im neuen Tab gedrückt, um es zu speichern.";
+
+          return;
+        }
+
+        if (isAppleMobile) {
+          window.location.href =
+            dataUrl;
+
+          downloadInfo.textContent =
+            "Halte das Bild gedrückt, um es zu speichern.";
+
+          return;
+        }
+
+        const fallbackLink =
+          document.createElement("a");
+
+        fallbackLink.download =
+          "mein-handgeschriebenes-arbeitsblatt.png";
+
+        fallbackLink.href =
+          dataUrl;
+
+        fallbackLink.click();
+
+        return;
+      }
+
+      const objectUrl =
+        URL.createObjectURL(blob);
+
+      if (
+        isAppleMobile &&
+        appleWindow &&
+        !appleWindow.closed
+      ) {
+        appleWindow.location.href =
+          objectUrl;
+
+        downloadInfo.textContent =
+          "Halte das Bild im neuen Tab gedrückt und wähle „In Fotos sichern“ oder „In Dateien sichern“.";
+
+        /*
+          URL erst später freigeben, damit Safari
+          genug Zeit zum Laden des Bildes hat.
+        */
+        setTimeout(() => {
+          URL.revokeObjectURL(objectUrl);
+        }, 60000);
+
+        return;
+      }
+
+      if (isAppleMobile) {
+        /*
+          Falls Safari das neue Fenster blockiert,
+          wird das Bild direkt geöffnet.
+        */
+        const dataUrl =
+          worksheetCanvas.toDataURL("image/png");
+
+        window.location.href =
+          dataUrl;
+
+        downloadInfo.textContent =
+          "Halte das Bild gedrückt, um es zu speichern.";
+
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
+
+      /*
+        Normaler Download für PC und Mac.
+      */
+      const link =
+        document.createElement("a");
+
+      link.href = objectUrl;
+      link.download =
+        "mein-handgeschriebenes-arbeitsblatt.png";
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => {
+        URL.revokeObjectURL(objectUrl);
+      }, 1000);
+    },
+    "image/png"
+  );
+}
+
+document
+  .getElementById("generateButton")
+  .addEventListener(
+    "click",
+    generateWorksheet
+  );
+
+document
+  .getElementById("downloadButton")
+  .addEventListener(
+    "click",
+    () => {
+      const button =
+        document.getElementById("downloadButton");
+
+      if (button.disabled) {
+        return;
+      }
+
+      button.disabled = true;
+
+      downloadWorksheetAsPNG();
+
+      setTimeout(() => {
+        button.disabled = false;
+      }, 1500);
+    }
+  );
+
+createCharacterButtons();
+selectCharacter("A");
+generateWorksheet();
+</script>
+
+</body>
+</html>
