@@ -49,10 +49,10 @@ textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,157,117,.
 .worksheet-area{margin-top:22px;text-align:center;padding:22px 12px 4px;background:var(--bg);border-radius:12px}
 .worksheet-page{display:block;width:100%;max-width:794px;height:auto;margin:0 auto 24px;background:#fff;border-radius:2px;box-shadow:0 2px 6px rgba(30,60,45,.10),0 10px 28px rgba(30,60,45,.10)}
 .page-label{margin:0 0 8px;color:var(--muted);font-size:12px}
-.text-wrap{position:relative}
-.text-wrap textarea{padding-right:48px}
-.clear-text{position:absolute;top:10px;right:10px;width:28px;height:28px;padding:0;color:#d64545;background:#fdecec;border:0;border-radius:50%;cursor:pointer;font-size:14px;line-height:1;transition:background .15s,color .15s}
-.clear-text:hover{color:#fff;background:#d64545}
+.text-tools{display:flex;justify-content:flex-end;gap:8px;margin-bottom:8px}
+.tool-btn{display:flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;cursor:pointer;font-size:13px;font-weight:500;transition:background .15s,color .15s}
+.tool-btn.clear{color:#d64545;background:#fdecec}
+.tool-btn.clear:hover{color:#fff;background:#d64545}
 .options{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;color:var(--muted);font-size:13px}
 .options label{display:flex;align-items:center;gap:7px}
 .options select{padding:6px 8px;color:var(--text);background:#fff;border:1px solid var(--border);border-radius:8px;font:inherit}
@@ -68,7 +68,7 @@ textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,157,117,.
 <body>
 
 <header>
-  <div class="tk-logo" aria-label="TK Logo"><span>T</span><span>K</span></div>
+  <svg class="tk-logo-svg" viewBox="118 28 144 152" width="46" height="48" role="img" aria-label="TK Logo"><rect x="120" y="38" width="140" height="140" rx="36" fill="#2d6247"/><rect x="120" y="30" width="140" height="140" rx="36" fill="#4f9d75"/><g fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M138 70 Q162 63 188 66"/><path d="M162 67 Q160 92 164 122"/><path d="M200 64 Q198 92 201 124"/><path d="M234 66 Q216 88 202 98"/><path d="M208 95 Q224 110 238 124"/></g><path d="M136 148 Q190 134 246 145" fill="none" stroke="#c9ecd7" stroke-width="5" stroke-linecap="round"/><circle cx="254" cy="144" r="4.5" fill="#f5d76e"/></svg>
   <h1>Meine Handschrift-Arbeitsblätter</h1>
 </header>
 
@@ -108,9 +108,12 @@ textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,157,117,.
 <section class="panel">
   <h2>2. Arbeitsblatt erstellen</h2>
 
+  <div class="text-tools">
+    <button id="clearTextButton" class="tool-btn clear" type="button" title="Text löschen" aria-label="Text löschen">✕</button>
+  </div>
+
   <div class="text-wrap">
   <textarea id="textInput">heute fährt max mit dem zug durch köln und kauft frisches brot beim bäcker. später schreibt er einen kurzen text über quizze und jazzmusik.</textarea>
-  <button id="clearTextButton" class="clear-text" type="button" title="Text löschen" aria-label="Text löschen">✕</button>
   </div>
 
   <div class="options">
@@ -118,6 +121,7 @@ textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,157,117,.
       <select id="paperSelect">
         <option value="lined">Liniert</option>
         <option value="grid">Kariert</option>
+        <option value="dots">Gepunktet</option>
         <option value="blank">Blanko</option>
       </select>
     </label>
@@ -171,11 +175,12 @@ const SPACE_WIDTH = 20;
 
 /* Kleine zufällige Schwankungen, damit es natürlicher wirkt (in Pixeln, Gesamtbereich) */
 const LETTER_GAP_JITTER = 0.9;  // Abstand zwischen Buchstaben: ca. ±0.45 px
+const LINE_START_JITTER = 10;   // Zeilenanfang: ca. ±5 px
 const SPACE_JITTER = 4;         // Abstand zwischen Wörtern: ca. ±2 px
 
 /* Leichtes "Wackeln" jedes Buchstabens: Größe, Höhe und Neigung */
 const WOBBLE_SIZE = 0.07;   // ca. ±3.5 %
-const WOBBLE_LIFT = 1.4;    // ca. ±0.7 px
+const WOBBLE_LIFT = 2.6;    // ca. ±1.3 px
 const WOBBLE_ANGLE = 0.045; // ca. ±1.3°
 
 function jitter(range) {
@@ -200,7 +205,10 @@ let textScale = 1;
 
 const INK_COLORS = { blue: "#1e3a9f", black: "#17251b", pencil: "#5b6068" };
 let inkColor = INK_COLORS.blue;
-const MAX_PAGES = 50;
+const MAX_PAGES = 20;
+
+/* Auflösung: Seiten werden mehrfach so fein gerendert (scharf beim Hineinzoomen im PDF) */
+const RENDER_SCALE = isAppleMobileDevice() ? 2 : 3;
 
 const drawingCanvas = document.getElementById("drawingCanvas");
 const drawingContext = drawingCanvas.getContext("2d");
@@ -231,6 +239,7 @@ let handwriting = loadHandwriting();
 /* Zustand beim Erstellen des Arbeitsblatts */
 let pages = [];        // Liste aller Seiten-Canvas
 let ctx = null;        // Kontext der aktuellen Seite
+let lineStartX = MARGIN; // Startposition der aktuellen Zeile
 let cx = MARGIN;       // aktuelle x-Position
 let cy = FIRST_BASELINE; // aktuelle Grundlinie
 let needPage = false;  // true, wenn die nächste Zeichnung eine neue Seite braucht
@@ -276,7 +285,11 @@ function normalizeHandwriting(saved) {
 }
 
 function saveHandwriting() {
-  localStorage.setItem("handwritingData", JSON.stringify(handwriting));
+  try {
+    localStorage.setItem("handwritingData", JSON.stringify(handwriting));
+  } catch (error) {
+    /* Speichern nicht möglich: Vorlagen bleiben bis zum Neuladen erhalten */
+  }
 }
 
 function cloneStrokes(value) {
@@ -627,6 +640,20 @@ function drawPageLines(context, canvas) {
       context.lineTo(canvas.width, y);
       context.stroke();
     }
+  } else if (paper === "dots") {
+    const step = LINE_HEIGHT / 2;
+
+    context.fillStyle = "#b4c6ba";
+    context.beginPath();
+
+    for (let x = MARGIN % step + step; x < canvas.width - 10; x += step) {
+      for (let y = FIRST_BASELINE % step + step; y < canvas.height - 10; y += step) {
+        context.moveTo(x + 1.1, y);
+        context.arc(x, y, 1.1, 0, Math.PI * 2);
+      }
+    }
+
+    context.fill();
   } else {
     for (let baseline = FIRST_BASELINE; baseline < canvas.height - 45; baseline += LINE_HEIGHT) {
       context.beginPath();
@@ -642,8 +669,8 @@ function drawPageLines(context, canvas) {
 function newPage() {
   const canvas = document.createElement("canvas");
 
-  canvas.width = PAGE_WIDTH;
-  canvas.height = PAGE_HEIGHT;
+  canvas.width = PAGE_WIDTH * RENDER_SCALE;
+  canvas.height = PAGE_HEIGHT * RENDER_SCALE;
   canvas.className = "worksheet-page";
 
   const label = document.createElement("p");
@@ -654,13 +681,15 @@ function newPage() {
   pagesElement.appendChild(canvas);
 
   ctx = canvas.getContext("2d");
+  ctx.scale(RENDER_SCALE, RENDER_SCALE);
   ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  drawPageLines(ctx, canvas);
+  ctx.fillRect(0, 0, PAGE_WIDTH, PAGE_HEIGHT);
+  drawPageLines(ctx, { width: PAGE_WIDTH, height: PAGE_HEIGHT });
 
   pages.push(canvas);
 
-  cx = MARGIN;
+  lineStartX = MARGIN + jitter(LINE_START_JITTER);
+  cx = lineStartX;
   cy = FIRST_BASELINE;
   needPage = false;
 }
@@ -673,7 +702,8 @@ function ensurePage() {
 }
 
 function newLine() {
-  cx = MARGIN;
+  lineStartX = MARGIN + jitter(LINE_START_JITTER);
+  cx = lineStartX;
   cy += LINE_HEIGHT;
 
   if (cy > PAGE_HEIGHT - MARGIN) {
@@ -802,7 +832,7 @@ function generateWorksheet() {
       const wordWidth = getWordWidth(part);
 
       /* Wort passt nicht mehr in die Zeile -> nächste Zeile (ggf. nächste Seite) */
-      if (cx > MARGIN && cx + wordWidth > PAGE_WIDTH - MARGIN) {
+      if (cx > lineStartX + 0.5 && cx + wordWidth > PAGE_WIDTH - MARGIN) {
         newLine();
       }
 
@@ -884,7 +914,7 @@ function buildPdf(canvases) {
     const pageNumber = 3 + i * 3;
     const contentNumber = pageNumber + 1;
     const imageNumber = pageNumber + 2;
-    const jpeg = dataUrlToBytes(canvas.toDataURL("image/jpeg", 0.95));
+    const jpeg = dataUrlToBytes(canvas.toDataURL("image/jpeg", 0.96));
     const content = `q ${W} 0 0 ${H} 0 0 cm /Im0 Do Q`;
 
     startObject(pageNumber);
@@ -911,44 +941,47 @@ function buildPdf(canvases) {
   return new Blob(parts, { type: "application/pdf" });
 }
 
-/*
-  Auf Windows/Mac wird das PDF direkt heruntergeladen.
-  Auf iPad/iPhone wird es in einem neuen Tab geöffnet (synchron beim
-  Klick, damit Safari es nicht blockiert) und kann dort über das
-  Teilen-Symbol gesichert werden.
-*/
-function downloadWorksheetAsPDF() {
-  if (!pages.length) return;
+async function offerFile(filename, blob) {
+  let downloads = null;
 
-  const isAppleMobile = isAppleMobileDevice();
-  const appleWindow = isAppleMobile ? window.open("", "_blank") : null;
-
-  const url = URL.createObjectURL(buildPdf(pages));
-
-  if (isAppleMobile) {
-    if (appleWindow) {
-      appleWindow.location.href = url;
-    } else {
-      window.location.href = url;
-    }
-
-    downloadInfo.textContent =
-      "Tippe im PDF auf das Teilen-Symbol, um es in „Dateien“ zu sichern.";
-
-    setTimeout(() => URL.revokeObjectURL(url), 120000);
-    return;
+  try {
+    downloads = window.claude ? await window.claude.use("downloads") : null;
+  } catch (error) {
+    downloads = null;
   }
 
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "mein-handgeschriebenes-arbeitsblatt.pdf";
+  if (downloads) {
+    try {
+      await downloads.save({ filename, data: blob });
+      return "saved";
+    } catch (error) {
+      return error && error.code === "declined" ? "declined" : "failed";
+    }
+  }
 
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
   document.body.appendChild(link);
   link.click();
   link.remove();
 
-  downloadInfo.textContent = "";
   setTimeout(() => URL.revokeObjectURL(url), 5000);
+  return "saved";
+}
+
+async function downloadWorksheetAsPDF() {
+  if (!pages.length) return;
+
+  const result = await offerFile(
+    "mein-handgeschriebenes-arbeitsblatt.pdf",
+    buildPdf(pages)
+  );
+
+  downloadInfo.textContent =
+    result === "failed" ? "Der Download ist fehlgeschlagen." : "";
 }
 
 document.getElementById("generateButton").addEventListener("click", generateWorksheet);
@@ -981,24 +1014,21 @@ sizeRange.addEventListener("input", () => {
   generateWorksheet();
 });
 
-document.getElementById("exportButton").addEventListener("click", () => {
+document.getElementById("exportButton").addEventListener("click", async () => {
   if (!Object.keys(handwriting).length) {
     statusText.textContent = "Es gibt noch keine Vorlagen zum Sichern.";
     return;
   }
 
-  const blob = new Blob([JSON.stringify(handwriting)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
+  const result = await offerFile(
+    "meine-handschrift.json",
+    new Blob([JSON.stringify(handwriting)], { type: "application/json" })
+  );
 
-  link.href = url;
-  link.download = "meine-handschrift.json";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
-  statusText.textContent = "Handschrift gesichert.";
+  statusText.textContent =
+    result === "saved" ? "Handschrift gesichert."
+    : result === "failed" ? "Das Sichern ist fehlgeschlagen."
+    : "";
 });
 
 const importInput = document.getElementById("importInput");
@@ -1017,16 +1047,11 @@ importInput.addEventListener("change", () => {
 
       if (!Object.keys(data).length) throw new Error("leer");
 
-      if (
-        Object.keys(handwriting).length &&
-        !confirm("Deine aktuellen Vorlagen werden durch die Datei ersetzt. Fortfahren?")
-      ) return;
-
       handwriting = data;
       saveHandwriting();
       selectCharacter(currentCharacter);
       generateWorksheet();
-      statusText.textContent = "Handschrift geladen.";
+      statusText.textContent = "Handschrift geladen (vorherige Vorlagen ersetzt).";
     } catch (error) {
       statusText.textContent = "Die Datei konnte nicht gelesen werden.";
     }
